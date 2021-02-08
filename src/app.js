@@ -21,7 +21,7 @@ App = {
                 // Request account access if needed
                 await ethereum.enable()
                 // Acccounts now exposed
-                web3.eth.sendTransaction({/* ... */ })
+                // web3.eth.sendTransaction({/* ... */ })
             } catch (error) {
                 // User denied account access...
             }
@@ -31,7 +31,7 @@ App = {
             App.web3Provider = web3.currentProvider
             window.web3 = new Web3(web3.currentProvider)
             // Acccounts always exposed
-            web3.eth.sendTransaction({/* ... */ })
+            // web3.eth.sendTransaction({/* ... */ })
         }
         // Non-dapp browsers...
         else {
@@ -44,6 +44,7 @@ App = {
     },
     loadContract: async () => {
         const todoList = await $.getJSON('TodoList.json');
+        console.log(todoList);
         App.constracts.TodoList = TruffleContract(todoList);
         App.constracts.TodoList.setProvider(App.web3Provider);
         //   console.log(todoList);
@@ -74,7 +75,7 @@ App = {
             $newTaskTemplate.find('input')
                 .prop('name', taskId)
                 .prop('checked', taskCompleted)
-                // .on('click', App.toggleCompleted)
+            // .on('click', App.toggleCompleted)
 
             // Put the task in the correct list
             if (taskCompleted) {
@@ -86,6 +87,18 @@ App = {
             // Show the task
             $newTaskTemplate.show()
         }
+    },
+    createTask: async () => {
+        App.setLoading(true);
+        const content = $('#newTask').val();
+        await App.todoList.createTask(content);
+        window.location.reload();
+    },
+    toggleCompleted: async (e) => {
+        App.setLoading(true)
+        const taskId = e.target.name
+        await App.todoList.toggleCompleted(taskId)
+        window.location.reload()
     },
     setLoading: (boolean) => {
         App.loading = boolean;
