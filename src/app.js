@@ -19,11 +19,12 @@ App = {
             window.web3 = new Web3(ethereum)
             try {
                 // Request account access if needed
-                await ethereum.enable()
+                await ethereum.enable();
                 // Acccounts now exposed
                 // web3.eth.sendTransaction({/* ... */ })
             } catch (error) {
                 // User denied account access...
+                console.log(error);
             }
         }
         // Legacy dapp browsers...
@@ -40,15 +41,19 @@ App = {
     },
     loadAccount: async () => {
         App.account = web3.eth.accounts[0];
-        console.log(App.account);
+        // personal.unlockAccount(App.account);
+        // console.log(App.account);
     },
     loadContract: async () => {
+        // 0x05766dF3CCEefA9ecA36d92c547Cdb9DC7BF5960
         const todoList = await $.getJSON('TodoList.json');
-        console.log(todoList);
+        // console.log(todoList);
         App.constracts.TodoList = TruffleContract(todoList);
+        // console.log(App.constracts.TodoList);
         App.constracts.TodoList.setProvider(App.web3Provider);
         //   console.log(todoList);
         App.todoList = await App.constracts.TodoList.deployed();
+        // console.log(App.todoList);
     },
     render: async () => {
         if (App.loading) {
@@ -62,9 +67,11 @@ App = {
     renderTasks: async () => {
         const taskCount = await App.todoList.taskCount();
         const $taskTemplate = $('.taskTemplate');
+        // console.log(taskCount.toNumber());
         for (var i = 1; i <= taskCount; i++) {
             // Fetch the task data from the blockchain
             const task = await App.todoList.tasks(i)
+            // console.log(task);
             const taskId = task[0].toNumber()
             const taskContent = task[1]
             const taskCompleted = task[2]
@@ -89,8 +96,10 @@ App = {
         }
     },
     createTask: async () => {
+        console.log(App.todoList.address);
         App.setLoading(true);
         const content = $('#newTask').val();
+        console.log(typeof(content) +" "+content);
         await App.todoList.createTask(content);
         window.location.reload();
     },
